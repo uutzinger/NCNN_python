@@ -1,0 +1,16 @@
+Name
+Target
+Mean
+Norm
+=========================================================
+hand_lite-op / landmarks
+224x244
+0
+1./255.
+input
+points
+score
+
+mean [128.0, 128.0, 128.0]
+norm [1./255.]
+
