@@ -28,14 +28,13 @@
 
 ## Overview
 This is a collection of python implementations of NCNN examples. 
-NCNN is an opernsource implementation of Convoluational Neural Netwqorks by [TENCENT](https://github.com/Tencent). Tencent is the world's largest video game developer as well as one of the most financially valuable companies [Wiki](https://en.wikipedia.org/wiki/Tencent). NCNN is optimized for mobile platforms; often is faster to run the model on CPU as compared to GPU.
+NCNN is an opernsource implementation of Convolutional Neural Networks by [TENCENT](https://github.com/Tencent). "Tencent is the world's largest video game developer as well as one of the most financially valuable companies." [Wiki](https://en.wikipedia.org/wiki/Tencent) and creator of [WeChat](https://en.wikipedia.org/wiki/WeChat). NCNN is optimized for mobile platforms; often is faster to run the model on CPU as compared to GPU.
 
-Code was converted to Python and accelerated with numpy and cython. A basic frame work to handle models, objects, bounding boxes, keypoints and transformations was developed. Python versions for Non Maximum Supression and image manipulation was implemented. In general converting code to python does not accelerate exsiting C code examples.
+Code was converted to Python and accelerated with numpy and cython. A basic frame work to handle models, objects, bounding boxes, keypoints and transformations was developed. Python versions for Non Maximum Supression and image manipulation was implemented. In general converting code to python does not accelerate exsiting C code examples. The motivation for this work was to provide optimized examples for Python platform.
 
 There are several sites listing current implementation of CNN models that have been converted to NCNN. However, there is no single authorative repository:
-* [Tencent](https://github.com/Tencent/ncnn/blob/master/python/ncnn/model_zoo). 
-* [Baiyuetribe
-](https://github.com/Baiyuetribe/ncnn-models)
+* [Tencent](https://github.com/Tencent/ncnn/blob/master/python/ncnn/model_zoo)
+* [Baiyuetribe](https://github.com/Baiyuetribe/ncnn-models)
 * [Marton Juhasz](https://github.com/nilseuropa/ncnn_models)
 
 ## Requirements
@@ -43,8 +42,6 @@ There are several sites listing current implementation of CNN models that have b
 * numpy
 * opencv
 * cython is suggested
-
-## Installation
 
 **ncnn** ```pip install ncnn ```
 
@@ -60,22 +57,23 @@ There are several sites listing current implementation of CNN models that have b
 As time progresses the version numnber might need to be increased, but many newer version have installation issues.
 
 ## Optimizations
-When converting code to python, torch dependencies were removed. A useful approaches is listed here: [torch to numpy](https://medium.com/axinc-ai/conversion-between-torch-and-numpy-operators-ce189b3882b1) guideline
 
 To increase performance, the following rules were observed:
-- Remove indexing over tensor/matrix dimensions
--Use Numpy boolean indexing when possible, avoid ```np.where```
+- Avoid indexing over tensor/matrix dimensions
+- Use Numpy boolean indexing when possible, avoid ```np.where```
 - ```np.append```, ```np.vstack``` or ```np.stack``` should be avoided when addign small amounts of data and regular lists and append function can be used
 - If ```np.concatenate``` is needed, apply it once to a list of all objects that need concatenation
 - If ```np.max``` and ```np.argmax``` are needed in 3D array use examples shown below
 - OpenCV data manipulations are faster than Numpy
-- OpenCV is slighlty faster than NCCN when manipulating images
+- OpenCV is slighlty faster than NCCN when manipulating images (e.g. resize)
 - Use OpenCV based algorithms whenever possible
 
+Torch dependencies were removed. A useful approaches is listed here: [torch to numpy](https://medium.com/axinc-ai/conversion-between-torch-and-numpy-operators-ce189b3882b1)
+
 ## Max Functions
-Numpy does not provide a function that provides both the maximum and its indices in a data matrix. Its necessary to rearrange the matrix, find the maximum location and then convert it back to indices which then allow to obtain the maximum and use the location for further calculations.
+Numpy does not provide a function that provides both the maximum and its indices in a data matrix. Its necessary to rearrange the matrix, find the maximum location and then convert it back to indices. Often maximum is needed to threshold and location is neded for further location calculations.
 ### 3D Max Function to find max and location in each plane
-With CNN, often the max value of a score and also its location in the output matrix/tensor is needed in order to obtain the coordinates of the optimal object or bounding box.
+Often needed to threshold score and find keypoints or bounding boxes.
 ```
 out2D       = out3D.reshape(out3D.shape[0],-1)      # converd n,m,o array to n,m*o
 idx         = out2D.argmax(1)                       # find max location in m*o range for each n
@@ -83,7 +81,7 @@ max_y,max_x = np.unravel_index(idx,out3D.shape[1:]) # unravel the location to m,
 max_out     = out2D[np.arange(len(idx)),idx]        # obtain max
 ```
 ### 3D Max Function to find max and location along axis
-The location of the maxia along main axis is needed when anchors are used.
+The location of the maxima along axis is needed when anchors are used in object detection.
 ```
 k           = np.argmax(out3D,axis=0)               # max class score location along n axis
 n,o         = out3D.shape[1:]                       # 
