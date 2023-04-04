@@ -40,7 +40,7 @@ class HandLandmarkDetect:
             'targetsize' : 224,
             'pad'        : True,
             'base'       : -1,
-            'name'       : "blazehandpose_mediapipe/hand_full-op", # verified hand_lite-op or hand_full-op
+            'name'       : "blazehandpose/hand_full-op", # verified hand_lite-op or hand_full-op
             'mean'       : 0.,
             'std'        : 255.
         }
