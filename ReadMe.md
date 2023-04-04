@@ -233,7 +233,7 @@ twine upload dist/*
 Urs Utzinger
 ```
 
-## Documentation
+## Documentation NOT FOR CONSUMPTION
 ### *utils.py*
 
 Ideally all functions and objects in this code should be changed to adhere to opencv point, vector and rectangle structures.
