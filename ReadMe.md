@@ -1,5 +1,7 @@
 # NCNN Python
 
+PRERELEASE STATUS, MIGHT HAVE ERRORS
+
 - [NCNN Python](#ncnn-python)
   * [Overview](#overview)
     + [Acceleration](#acceleration)
