@@ -92,17 +92,17 @@ class PersonLandmarkDetect:
             'targetsize' : 256,
             'pad'        : True,
             'base'       : -1,
-            'name'       : "blazepose/lite",            # lite, full or heavy
+            'name'       : "blazepersonpose/lite",            # lite, full or heavy
             'mean'       : 0.,                          #
             'std'        : 255.,                        # 
         }
 
         if level == "light":
-            self.ModelConfig['name'] = "blazepose/lite"
+            self.ModelConfig['name'] = "blazepersonpose/lite"
         elif level == "full":
-            self.ModelConfig['name'] = "blazepose/full"
+            self.ModelConfig['name'] = "blazepersonpose/full"
         elif level == "heavy": 
-            self.ModelConfig['name'] = "blazepose/heavy"
+            self.ModelConfig['name'] = "blazepersonpose/heavy"
 
         self.m = (  self.ModelConfig['mean'],  self.ModelConfig['mean'],   self.ModelConfig['mean'])
         self.s = (1./self.ModelConfig['std'],1./self.ModelConfig['std'],1./self.ModelConfig['std'])
