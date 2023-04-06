@@ -36,17 +36,18 @@
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 ## Overview
-This is a collection of python implementations of NCNN examples. 
-NCNN is an open source implementation of Convolutional Neural Networks by [TENCENT](https://github.com/Tencent). "Tencent is the world's largest video game developer as well as one of the most financially valuable companies" [Wiki](https://en.wikipedia.org/wiki/Tencent) and creator of [WeChat](https://en.wikipedia.org/wiki/WeChat). NCNN is optimized for mobile platforms; often it is faster to run the model on CPU as compared to GPU.
+This is a collection of python programs using the NCNN framework. 
+NCNN is an open source implementation of Convolutional Neural Networks by [TENCENT](https://en.wikipedia.org/wiki/Tencent). NCNN is optimized for mobile platforms; often it is faster to run the model on CPU than GPU.
 
-Code was converted to Python and accelerated with numpy and cython. A basic frame work to handle models, objects, bounding boxes, keypoints and transformations was developed. Python versions for Non Maximum Suppression and image manipulation was implemented. In general converting code to python does not accelerate existing C code examples. The motivation for this work was to provide optimized examples for Python platform.
+Code was converted to Python and accelerated with numpy and cython. A basic framework to handle models, objects, bounding boxes, keypoints and transformations was developed. Python versions for Non Maximum Suppression and image manipulation was implemented. In general developing code in python does not accelerate existing C programs. The motivation for this work was to provide optimized examples for the Python platform.
 
-There are several sites listing current implementation of CNN models that have been converted to NCNN. However, there is no single authoritative repository:
+There are several sites listing current implementations of CNN models that have been converted to NCNN. However, there is no single authoritative repository:
 * [Tencent](https://github.com/Tencent/ncnn/blob/master/python/ncnn/model_zoo)
 * [Baiyuetribe](https://github.com/Baiyuetribe/ncnn-models)
 * [Marton Juhasz](https://github.com/nilseuropa/ncnn_models)
 
 ## Requirements
+To run the program you will need to install the following packages:
 * NCNN
 * numpy
 * opencv
@@ -58,7 +59,6 @@ There are several sites listing current implementation of CNN models that have b
 
 **opencv** ```pip install opencv-contrib-python```  
 
-
 ### OpenCV on Raspi  
 
 ```sudo pip3 install opencv-contrib-python==4.5.3.56``` 
@@ -68,19 +68,19 @@ As time progresses the version number might need to be increased, but many newer
 ## Optimizations
 
 To increase performance, the following rules were observed:
-- Avoid indexing over tensor/matrix dimensions
-- Use Numpy boolean indexing when possible, avoid ```np.where```
-- ```np.append```, ```np.vstack``` or ```np.stack``` should be avoided when addign small amounts of data and regular lists and append function can be used
-- If ```np.concatenate``` is needed, apply it once to a list of all objects that need concatenation
-- If ```np.max``` and ```np.argmax``` are needed in 3D array use examples shown below
+- Use OpenCV based algorithms whenever possible
 - OpenCV data manipulations are faster than Numpy
 - OpenCV is slightly faster than NCCN when manipulating images (e.g. resize)
-- Use OpenCV based algorithms whenever possible
+- Avoid indexing over tensor/matrix dimensions
+- Use Numpy boolean indexing when possible, avoid ```np.where```
+- ```np.append```, ```np.vstack``` or ```np.stack``` should be avoided when adding small amounts of data and regular lists and append function can be used
+- If ```np.concatenate``` is needed, apply it once to a list of all objects that need concatenation
+- If ```np.max``` and ```np.argmax``` are needed for a 3D array use examples shown below
 
-Torch dependencies were removed. A useful approaches is listed here: [torch to numpy](https://medium.com/axinc-ai/conversion-between-torch-and-numpy-operators-ce189b3882b1)
+Torch dependencies were removed. A useful guide is listed here: [torch to numpy](https://medium.com/axinc-ai/conversion-between-torch-and-numpy-operators-ce189b3882b1)
 
 ## Max Functions
-Numpy does not provide a function that provides both the maximum and its indices in a data matrix. Its necessary to rearrange the matrix, find the maximum location and then convert it back to indices. Often maximum is needed to threshold and indices are neded for further location calculations.
+Numpy does not provide a function that provides both the maximum and its indices in a data matrix. Its necessary to rearrange the matrix, find the maximum location and then convert it back to indices. Often maximum is needed to threshold and indices are needed for further location calculations.
 ### 3D Max Function to find max and location in each plane
 Often needed to threshold score and find keypoints or bounding boxes.
 ```
@@ -163,15 +163,15 @@ class_score = out_3D[k, I, J]                       # max class score
 | yolox      | not implemented yet
 
 ## Test Programs
-- test_arcface: runs retinaface to find faces then extracts ROI and applies arcface
+- test_arcface: runs retinaface to find faces then extracts ROI and applies arcface to compute embeddings
 - test_blazehandpose: uses blaze palm to find palms then runs handpose to find sceleton
-- test_blzeperson: finds people
+- test_balzeperson: finds people
 - test_blazepersonpose: finds people then runs skeleton detection
-- test_blur: extracts ROI and assess if image is blurred or acceptable
+- test_blur: extracts ROI and assess if image is blurred
 - test_fastestdet
-- test_gestures: detects palm then extracts ROI calculate sceleton then inteprets hand sign
+- test_gestures: detects palm then extracts ROI, calculates sceleton then inteprets hand sign
 - test_handpose: finds palms then computes skeleton
-- test_live: determines if image and ROI is live or fake
+- test_live: determines if image of face is live or fake
 - test_retinaface: detects faces
 - test_yolo7: detects objects
 
@@ -193,9 +193,9 @@ objectTypes = {'rect':0, 'yolo80':1, 'hand':2, 'palm7':3, 'hand21':4, 'face':5,
 ```
 Simple objects with bounding box: rect, hand, face, person
 
-Object with keypoints, plam7, hand21, face5, person4, person17, person39
+Object with keypoints, plam7, hand21, face5, person4, person17, person39, where number indicates the number of keypoints.
 
-Classified objects: yolo80 (80 classes)
+Ojects: yolo80 (80 classes)
 
 #### Object Structure
 ```
@@ -218,17 +218,17 @@ True or False:
 Regular:
 - extent: max-min of bounding box
 - center: center of bounding box
-- width_height: on rotated rectangle
+- width_height: on rotated bounding box
 - relative2absolute: scale from 0..1 to 0.. width/height
 - transform: apply cv2.transfrom to bounding box and keypoints
-- intrasnform: inverse transform 
+- intransform: inverse transform 
 - resize: resize and shift bounding box
 - square: ensure square bounding box, takes largest dimension
 - angle: angle of keypoints face5, palm7, person4, person17, person 39
 - rotateBoundingBox: rotate rectangualr bounding box by angle
-- draw: draw the different obejects bounding boxes and keypoints 
+- draw: draw the bounding boxe and keypoints 
 - drawRect: draw bounding box 
-- printText: prints text to top left corner
+- printText: prints text to top left corner of bounding box
 
 - drawObjects: draw multiple objects
 - calculateBox: phased out
@@ -252,16 +252,16 @@ Regular:
 - reset
 
 ### **utils_image.py**
-- resizeImage to new width and new height, pad optional
+- resizeImage to new width and new height, padding optional
 - resizeImage2TargetSize so that width or height is targetsize and pad so that width or height is multiple of base
 - extractObjectROI extract image from any bounding box and scale to targetsize
 - extractRectROI, extract image from un-roated bounding box
 
 ### **utils_hand.py**
-- gesture of handsceleton will select point, swear, thumbs up,down,left,right, vulcan, oath, paper, rock, victory, finger, hook, pinky, one, two, three, four, ok
+- gesture of handsceleton will select none, point, swear, thumbs up,down,left,right, vulcan, oath, paper, rock, victory, finger, hook, pinky, one, two, three, four, ok
 
 ### **utils_face.py**
-- overlaymatch places found face ontop of face
+- overlaymatch places found face on top of face
 
 ### **utils_cnn.py**
 - nms_cv, non maximum supppresion, filters bounding boxes based on overlap, uses openCV nms, fastest approach
@@ -290,7 +290,7 @@ Regular:
 - decomposeAffine44 converst transfomration matrix to T,R,Z,S 
 
 ### **setup.py**
-instruction to cythonize subroutines
+Instruction to cythonize subroutines
 
 ## Affine and Warp Transformations
 Region of interested can be extracted from images using affine or warped transformation.
@@ -374,6 +374,5 @@ py -3 setup.py bdist_wheel
 pip3 install dist/thenewpackage.whl
 twine upload dist/*
 ```
-
 
 ## References
