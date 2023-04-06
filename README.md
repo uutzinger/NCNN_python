@@ -36,11 +36,11 @@
 
 ## Overview
 This is a collection of python implementations of NCNN examples. 
-NCNN is an opernsource implementation of Convolutional Neural Networks by [TENCENT](https://github.com/Tencent). "Tencent is the world's largest video game developer as well as one of the most financially valuable companies." [Wiki](https://en.wikipedia.org/wiki/Tencent) and creator of [WeChat](https://en.wikipedia.org/wiki/WeChat). NCNN is optimized for mobile platforms; often is faster to run the model on CPU as compared to GPU.
+NCNN is an opensource implementation of Convolutional Neural Networks by [TENCENT](https://github.com/Tencent). "Tencent is the world's largest video game developer as well as one of the most financially valuable companies." [Wiki](https://en.wikipedia.org/wiki/Tencent) and creator of [WeChat](https://en.wikipedia.org/wiki/WeChat). NCNN is optimized for mobile platforms; often is faster to run the model on CPU as compared to GPU.
 
-Code was converted to Python and accelerated with numpy and cython. A basic frame work to handle models, objects, bounding boxes, keypoints and transformations was developed. Python versions for Non Maximum Supression and image manipulation was implemented. In general converting code to python does not accelerate exsiting C code examples. The motivation for this work was to provide optimized examples for Python platform.
+Code was converted to Python and accelerated with numpy and cython. A basic frame work to handle models, objects, bounding boxes, keypoints and transformations was developed. Python versions for Non Maximum Suppression and image manipulation was implemented. In general converting code to python does not accelerate existing C code examples. The motivation for this work was to provide optimized examples for Python platform.
 
-There are several sites listing current implementation of CNN models that have been converted to NCNN. However, there is no single authorative repository:
+There are several sites listing current implementation of CNN models that have been converted to NCNN. However, there is no single authoritative repository:
 * [Tencent](https://github.com/Tencent/ncnn/blob/master/python/ncnn/model_zoo)
 * [Baiyuetribe](https://github.com/Baiyuetribe/ncnn-models)
 * [Marton Juhasz](https://github.com/nilseuropa/ncnn_models)
@@ -62,7 +62,7 @@ There are several sites listing current implementation of CNN models that have b
 
 ```sudo pip3 install opencv-contrib-python==4.5.3.56``` 
 
-As time progresses the version numnber might need to be increased, but many newer version have installation issues.
+As time progresses the version number might need to be increased, but many newer version have installation issues.
 
 ## Optimizations
 
@@ -73,7 +73,7 @@ To increase performance, the following rules were observed:
 - If ```np.concatenate``` is needed, apply it once to a list of all objects that need concatenation
 - If ```np.max``` and ```np.argmax``` are needed in 3D array use examples shown below
 - OpenCV data manipulations are faster than Numpy
-- OpenCV is slighlty faster than NCCN when manipulating images (e.g. resize)
+- OpenCV is slightly faster than NCCN when manipulating images (e.g. resize)
 - Use OpenCV based algorithms whenever possible
 
 Torch dependencies were removed. A useful approaches is listed here: [torch to numpy](https://medium.com/axinc-ai/conversion-between-torch-and-numpy-operators-ce189b3882b1)
@@ -83,7 +83,7 @@ Numpy does not provide a function that provides both the maximum and its indices
 ### 3D Max Function to find max and location in each plane
 Often needed to threshold score and find keypoints or bounding boxes.
 ```
-out2D       = out3D.reshape(out3D.shape[0],-1)      # converd n,m,o array to n,m*o
+out2D       = out3D.reshape(out3D.shape[0],-1)      # convert n,m,o array to n,m*o
 idx         = out2D.argmax(1)                       # find max location in m*o range for each n
 max_y,max_x = np.unravel_index(idx,out3D.shape[1:]) # unravel the location to m,o coordinates
 max_out     = out2D[np.arange(len(idx)),idx]        # obtain max
@@ -134,7 +134,7 @@ class_score = out_3D[k, I, J]                       # max class score
 | blazepose - [x] | Valentin Bazarevsky / Google | [Android Blazepose](https://github.com/FeiGeChuanShu/ncnn_Android_BlazePose) [DepthAI Blazepose](https://github.com/geaxgx/depthai_blazepose) | [Paper](https://paperswithcode.com/paper/blazepose-on-device-real-time-body-pose) | 256x256 | 3D | 6.3ms(light), 7.9ms(full), 22ms(heavy) | 6.6ms (light) |
 
 ## Notes
-| Name       | Anchors  | Applciation of Anchors | NMS | Softmax | Sigmoid, Tanh |
+| Name       | Anchors  | Application of Anchors | NMS | Softmax | Sigmoid, Tanh |
 |------------|----|---|---|---|---|
 | age        | not available | | | | |
 | race       | not available | | | | |
@@ -250,18 +250,18 @@ Regular:
 - overlaymatch places found face ontop of face
 
 ### **utils_cnn.py**
-- nms_cv filters bounding boxes based on overlap, fastest approach
-- nms simple fully python based
-- nms_combinationm, likely not wanted
+- nms_cv, non maximum supppresion, filters bounding boxes based on overlap, uses openCV nms, fastest approach
+- nms, simple, fully python based
+- nms_combination, likely not needed
 - nms_weighted, uses weighted approach for overlapping bounding boxes
-- nms_blaze original python code from blaze nets
+- nms_blaze original python code for blaze, includes mathematical explanations
 
-- matchEmbeddings, given one embedding and list of all embeding find the one closest matching
+- matchEmbeddings, given one embedding and comparing it to a list of embedings, finds the one closest matching
 - Zscore (data - mean(data)) / std(data)
 - CosineDistance between two embeddings
 - EuclidianDistnace between two embeddings
 - l2normalize x/sqrt(sum(x*x)), try cv2.norm instead
-- findThreshold might be obsolete
+- findThreshold, might be obsolete
 
 ### **utils_blaze.py**
 - decode_boxes
@@ -271,12 +271,12 @@ Regular:
 - generate_anchors_np
 
 ### **utils_affine.py**
-- composeAffine (T,R,Z,S) creates transformation matrix from translation, rotation, zoom, shear
-- decomposeAffine23 converts transformation matrix to TRZS
-- decomposeAffine44 converst transfomration matrix to TRZS 
+- composeAffine (T,R,Z,S) creates transformation matrix from translation, rotation, zoom/scale, shear
+- decomposeAffine23 converts transformation matrix back to T,R,Z,S
+- decomposeAffine44 converst transfomration matrix to T,R,Z,S 
 
 ### **setup.py**
-instruction to cythonize subroutins.
+instruction to cythonize subroutines
 
 ## Affine and Warp Transformations
 Region of interested can be extracted from images using affine or warped transformation.
