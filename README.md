@@ -4,7 +4,7 @@
   * [Overview](#overview)
   * [Requirements](#requirements)
   * [Installation](#installation)
-    + [OpenCV on Raspi:](#opencv-on-raspi-)
+    + [OpenCV on Raspi](#opencv-on-raspi-)
   * [Optimizations](#optimizations)
   * [Max Functions](#max-functions)
     + [3D Max Function to find max and location in each plane](#3d-max-function-to-find-max-and-location-in-each-plane)
@@ -50,7 +50,7 @@ There are several sites listing current implementation of CNN models that have b
 **opencv** ```pip install opencv-contrib-python```  
 
 
-### OpenCV on Raspi:  
+### OpenCV on Raspi  
 
 ```sudo pip3 install opencv-contrib-python==4.5.3.56``` 
 
@@ -71,7 +71,7 @@ To increase performance, the following rules were observed:
 Torch dependencies were removed. A useful approaches is listed here: [torch to numpy](https://medium.com/axinc-ai/conversion-between-torch-and-numpy-operators-ce189b3882b1)
 
 ## Max Functions
-Numpy does not provide a function that provides both the maximum and its indices in a data matrix. Its necessary to rearrange the matrix, find the maximum location and then convert it back to indices. Often maximum is needed to threshold and location is neded for further location calculations.
+Numpy does not provide a function that provides both the maximum and its indices in a data matrix. Its necessary to rearrange the matrix, find the maximum location and then convert it back to indices. Often maximum is needed to threshold and indices are neded for further location calculations.
 ### 3D Max Function to find max and location in each plane
 Often needed to threshold score and find keypoints or bounding boxes.
 ```
@@ -89,7 +89,7 @@ I,J         = np.ogrid[:n,:o]                       # there is max at each locat
 class_score = out_3D[k, I, J]                       # max class score
 ```
 
-## Examples & Models
+## Implementations
 
 | Implementation | Author | Website | Article | Image Size| Implementation | Extraction [ms]  | Pipeline [ms]  |
 |---|-----|-----|-----|-----|----|----|-----|
@@ -125,7 +125,7 @@ class_score = out_3D[k, I, J]                       # max class score
 | ultralightpose, Skeleton| Xueha Ma | [UltralightPose](https://github.com/dog-qiuqiu/Ultralight-SimplePose) |  | 192x256 | no NMS, anchorfree   | 5.84 |  6.4 |
 | blazepose - [x] | Valentin Bazarevsky / Google | [Android Blazepose](https://github.com/FeiGeChuanShu/ncnn_Android_BlazePose) [DepthAI Blazepose](https://github.com/geaxgx/depthai_blazepose) | [Paper](https://paperswithcode.com/paper/blazepose-on-device-real-time-body-pose) | 256x256 | 3D | 6.3ms(light), 7.9ms(full), 22ms(heavy) | 6.6ms (light) |
 
-## Implementation Notes
+## Notes
 | Name       | Anchors  | Applciation of Anchors | NMS | Softmax | Sigmoid, Tanh |
 |------------|----|---|---|---|---|
 | age        | not available | | | | |
@@ -153,6 +153,122 @@ class_score = out_3D[k, I, J]                       # max class score
 | yolo8      | grid_strides table          | generate_proposal | NMS  | softmax | sigmoid
 | yolox      | not implemented yet
 
+## Changes
+```
+2023 - Initial Release
+Urs Utzinger
+```
+
+## Documentation
+Documentation of utility functions:
+
+### **utils_object.py**
+
+#### Object Types
+```
+objectTypes = {'rect':0, 'yolo80':1, 'hand':2, 'palm7':3, 'hand21':4, 'face':5, 
+               'face5':6, 'person':7, 'person4':8, 'person17':9, 'person39':10 }
+```
+Simple objects with bounding box: rect, hand, face, person
+
+Object with keypoints, plam7, hand21, face5, person4, person17, person39
+
+Classified objects: yolo80 (80 classes)
+
+#### Object Structure
+```
+object.type=objectTypes['rect'],  # Object Type
+object.bb = np.array( [           # Bounding Box, 4 or 2 points
+                      [ [-1, -1] ],
+                      [ [-1, -1] ],
+                      [ [-1, -1] ],
+                      [ [-1, -1] ]
+                      ], dtype=np.float32 )
+object.p  = -1.                   # Probability
+object.l  = -1                    # Label number
+object.k  = []                    # Keypoints 
+object.v  = []                    # Keypoints visibility 
+```
+#### Object Methods
+True or False:
+- hasKeypoints, hasVisibility, isRotated, is1D, is2D, is3D
+
+Regular:
+- extent: max-min of bounding box
+- center: center of bounding box
+- width_height: on rotated rectangle
+- relative2absolute: scale from 0..1 to 0.. width/height
+- transform: apply cv2.transfrom to bounding box and keypoints
+- intrasnform: inverse transform 
+- resize: resize and shift bounding box
+- square: ensure square bounding box, takes largest dimension
+- angle: angle of keypoints face5, palm7, person4, person17, person 39
+- rotateBoundingBox: rotate rectangualr bounding box by angle
+- draw: draw the different obejects bounding boxes and keypoints 
+- drawRect: draw bounding box 
+- printText: prints text to top left corner
+
+- drawObjects: draw multiple objects
+- calculateBox: phased out
+
+#### LandMarksSmoothingFilter
+- get_object_scale
+- apply
+- get_alpha
+- reset
+
+##### OneEuroFilter
+- get_alpha
+- apply
+
+##### LowPassFilter
+- apply
+- apply_with_alpha
+- has_last_raw_value
+- last_raw_value
+- last_value
+- reset
+
+### **utils_image.py**
+- resizeImage to new width and new height, pad optional
+- resizeImage2TargetSize so that width or height is targetsize and pad so that width or height is multiple of base
+- extractObjectROI extract image from any bounding box and scale to targetsize
+- extractRectROI, extract image from un-roated bounding box
+
+### **utils_hand.py**
+- gesture of handsceleton will select point, swear, thumbs up,down,left,right, vulcan, oath, paper, rock, victory, finger, hook, pinky, one, two, three, four, ok
+
+### **utils_face.py**
+- overlaymatch places found face ontop of face
+
+### **utils_cnn.py**
+- nms_cv filters bounding boxes based on overlap, fastest approach
+- nms simple fully python based
+- nms_combinationm, likely not wanted
+- nms_weighted, uses weighted approach for overlapping bounding boxes
+- nms_blaze original python code from blaze nets
+
+- matchEmbeddings, given one embedding and list of all embeding find the one closest matching
+- Zscore (data - mean(data)) / std(data)
+- CosineDistance between two embeddings
+- EuclidianDistnace between two embeddings
+- l2normalize x/sqrt(sum(x*x)), try cv2.norm instead
+- findThreshold might be obsolete
+
+### **utils_blaze.py**
+- decode_boxes
+- Anchor object
+- Anchor Params
+- generate_anchors
+- generate_anchors_np
+
+### **utils_affine.py**
+- composeAffine (T,R,Z,S) creates transformation matrix from translation, rotation, zoom, shear
+- decomposeAffine23 converts transformation matrix to TRZS
+- decomposeAffine44 converst transfomration matrix to TRZS 
+
+### **setup.py**
+instruction to cythonize subroutins.
 
 ## Affine and Warp Transformations
 Region of interested can be extracted from images using affine or warped transformation.
@@ -227,15 +343,6 @@ There is also reflection and mirror image transformation.
           [ a31, a32 ,a33] {src}
                            {1}
 
-
-## Example Programs
-
-### blazeperson
-This cnn extracts a bound box and 4 keypoints. The bounding box includes upper torso and head and they keypoints are the lower and upper bound of the torso, the forehead and somewhere above the head. It bounding box does not scale well with distance and torso keypoints imply often a rotation of up to 10 degrees that is not present.
-
-**Examples**: 
-* ```test_display.py``` testing of opencv display framerate, no camera, just refresh rate.
-
 ## Pip upload
 Note to myself:
 ```
@@ -245,100 +352,6 @@ py -3 setup.py bdist_wheel
 pip3 install dist/thenewpackage.whl
 twine upload dist/*
 ```
-## Changes
-```
-2023 - Initial Release
-Urs Utzinger
-```
 
-## Documentation
-### *utils.py*
-
-Ideally all functions and objects in this code should be changed to adhere to opencv point, vector and rectangle structures.
-
-    srcPts = np.array( [
-        [ [point1.x, poin1.y] ],    
-        [ [point2.x, point2.y] ], 
-        [ [point3.x, point3.y] ], 
-        [ [point4.x, point4.y] ]
-    ], dtype=np.float32)
-
-    matrix = np.array( [
-        [scale, 0, l],
-        [0, scale, t],
-        [0,     0, 1]
-    ], dtype=np.float32)
-
-Utility functions
-- clip(x,y) clip to 0..y
-- clamp(x,smallest,largest)
-- sigmoid_np(x)
-- tanh_np(x)
-- sigmoid(x)
-- tanh(x)
-
-Point support
-- Point(x,y,visible)
-  - distance(to other point)
-  - angle(to other point)
-
-Vector support
-- Vector(point_a,point_b)
-  - lenght
-  - dot(with other vector)
-  - dotprod(with other vector)
-  - angle
-  - mult(with other vector)
-  - div(with other vector)
-  - sub(with other vector)
-  - add(with other vector)
-
-Rectangle support
-- Rect(x0,y0,x1,y1)
-  - width
-  - height
-  - center
-  - area
-  - intersection_area(with other rectangle)
-  - draw
-  - resize(scale,left_add,top_add)
-
-Object support
-- objectTypes are 'rect', 'yolo80', 'person', 'preson17', 'person32', 'hand', 'hand7', 'face', 'face5'
-- Object(x0,y0,x1,y1,probability,label,type,keypoints_x, keypoints_y, keypoints_visibility)
-  - hasKeypoints
-  - resize(scale,left_add,top_add)
-  - draw
-  - drawRect
-  - angle for face5, hand7, person17, person32
-- drawObjects
-- resizeObjectRects(objects,scale,left_add,top_add)
-
-Rotated Object support
-- RotatedObject(score, landmarks, rotation, type, centerx, centery, width, height, rotatedrectangle(Point*4), skeleton, skeleton_score)
-  - resize
-  - draw
-- createRotatedObject(object,rotation,rotation_x,rotation_y, square, scale) ceates new bounding box
-- align(src_poins, dst_points) Umeyama algorithem
-
-Resize images, Region of Interest Extraction
-- calculateBox, modifies boundingbox with shift, scale, sets new width and height keeping center
-- computeImgSize creates new w,h based on targetsize and base
-- resizeImg new_with, new_height, pad on/off resize while maintaining aspect ratio
-- resizeImg2Targetsize resizes image to targetsize, multiple of base, keeps aspect ratio
-- extractObjectROI extracts region of interest, applies rotation if keypoints available, simple option: takes angele of a few keypoints, complex option:  takes all keypoints to compute affine transformation, uses warpaffine to extract ROI from original image, resulting image is square and of targetsize
-
-### *utils_cnn.py*
-Non Maxima Supression, all implementations work when different object labels are present.
-- nms (fast)
-- nms_combination
-- nms_weighted (slower)
-- Zscore of embeddings
-- CosineDistance between two sets of embeddings
-- EuclideanDistance between two sets of embeddings
-- l2_normalize emobeddings x/sqrt(sum(x*x))
-
-### *setup.py*
-instruction to cythonize subroutins.
 
 ## References

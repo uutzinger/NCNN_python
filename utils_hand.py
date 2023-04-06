@@ -87,7 +87,7 @@ def gesture(hand):
     if C[0] > 0 and C[1] == 0 and C[2] > 0 and C[3] > 0 and C[4] > 0:
         return "point"
     
-    # Swaer:
+    # Swear:
     #  thumb opened
     #  index opened and up
     #  middle opened and up
