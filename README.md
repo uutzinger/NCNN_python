@@ -11,7 +11,7 @@
   * [Implementations](#implementations)
   * [Notes](#notes)
   * [Test Programs](#test-programs)
-  * [Changes](#changes)
+  * [History](#history)
   * [Documentation](#documentation)
     + [**utils_object.py**](#--utils-objectpy--)
       - [Object Types](#object-types)
@@ -175,8 +175,7 @@ class_score = out_3D[k, I, J]                       # max class score
 - test_retinaface: detects faces
 - test_yolo7: detects objects
 
-- 
-## Changes
+## History
 ```
 2023 - Initial Release
 Urs Utzinger
