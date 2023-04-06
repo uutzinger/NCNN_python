@@ -10,6 +10,7 @@
     + [3D Max Function to find max and location along axis](#3d-max-function-to-find-max-and-location-along-axis)
   * [Implementations](#implementations)
   * [Notes](#notes)
+  * [Test Programs](#test-programs)
   * [Changes](#changes)
   * [Documentation](#documentation)
     + [**utils_object.py**](#--utils-objectpy--)
@@ -36,7 +37,7 @@
 
 ## Overview
 This is a collection of python implementations of NCNN examples. 
-NCNN is an opensource implementation of Convolutional Neural Networks by [TENCENT](https://github.com/Tencent). "Tencent is the world's largest video game developer as well as one of the most financially valuable companies." [Wiki](https://en.wikipedia.org/wiki/Tencent) and creator of [WeChat](https://en.wikipedia.org/wiki/WeChat). NCNN is optimized for mobile platforms; often is faster to run the model on CPU as compared to GPU.
+NCNN is an open source implementation of Convolutional Neural Networks by [TENCENT](https://github.com/Tencent). "Tencent is the world's largest video game developer as well as one of the most financially valuable companies" [Wiki](https://en.wikipedia.org/wiki/Tencent) and creator of [WeChat](https://en.wikipedia.org/wiki/WeChat). NCNN is optimized for mobile platforms; often it is faster to run the model on CPU as compared to GPU.
 
 Code was converted to Python and accelerated with numpy and cython. A basic frame work to handle models, objects, bounding boxes, keypoints and transformations was developed. Python versions for Non Maximum Suppression and image manipulation was implemented. In general converting code to python does not accelerate existing C code examples. The motivation for this work was to provide optimized examples for Python platform.
 
@@ -161,6 +162,20 @@ class_score = out_3D[k, I, J]                       # max class score
 | yolo8      | grid_strides table          | generate_proposal | NMS  | softmax | sigmoid
 | yolox      | not implemented yet
 
+## Test Programs
+- test_arcface: runs retinaface to find faces then extracts ROI and applies arcface
+- test_blazehandpose: uses blaze palm to find palms then runs handpose to find sceleton
+- test_blzeperson: finds people
+- test_blazepersonpose: finds people then runs skeleton detection
+- test_blur: extracts ROI and assess if image is blurred or acceptable
+- test_fastestdet
+- test_gestures: detects palm then extracts ROI calculate sceleton then inteprets hand sign
+- test_handpose: finds palms then computes skeleton
+- test_live: determines if image and ROI is live or fake
+- test_retinaface: detects faces
+- test_yolo7: detects objects
+
+- 
 ## Changes
 ```
 2023 - Initial Release
